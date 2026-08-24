@@ -1,0 +1,10 @@
+_base_: stl10.yaml
+
+experiment:
+  name: stl10-random-fedhydra
+
+data:
+  partition: dirichlet
+  alpha: 0.3
+  domain_shift_strength: 0.0
+

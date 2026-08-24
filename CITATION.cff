@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this implementation, please cite the FedHyDRA paper."
+title: "FedHyDRA: Federated Learning with Dual-Scale Hybrid Divergence and Relation-Aware Embedding"
+type: software
+authors:
+  - family-names: Shin
+    given-names: Wooseok
+  - family-names: Yang
+    given-names: Janghoon
+  - family-names: Shen
+    given-names: Zhiqiang
+  - family-names: Shin
+    given-names: Jitae
+version: 0.1.0
+date-released: 2026-08-24
+license: MIT
+preferred-citation:
+  type: article
+  title: "Federated Learning with Dual-Scale Hybrid Divergence and Relation-Aware Embedding for Structured Non-IID Data"
+  authors:
+    - family-names: Shin
+      given-names: Wooseok
+    - family-names: Yang
+      given-names: Janghoon
+    - family-names: Shen
+      given-names: Zhiqiang
+    - family-names: Shin
+      given-names: Jitae
+  year: 2026

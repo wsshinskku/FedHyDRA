@@ -1,0 +1,12 @@
+_base_: cifar100.yaml
+
+experiment:
+  name: tiny-imagenet-structured-fedhydra
+
+data:
+  name: tiny_imagenet
+  root: data/tiny-imagenet-200
+  download: false
+  image_size: 64
+  samples_per_client: 500
+

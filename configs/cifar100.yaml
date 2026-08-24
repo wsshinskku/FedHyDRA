@@ -1,0 +1,76 @@
+experiment:
+  name: cifar100-structured-fedhydra
+  output_dir: runs
+  seed: 0
+  device: auto
+  deterministic: true
+
+data:
+  name: cifar100
+  root: data
+  download: true
+  num_clients: 200
+  clients_per_round: 20
+  partition: structured
+  alpha: 0.3
+  samples_per_client: 250
+  min_samples_per_client: 32
+  num_workers: 0
+  image_size: 32
+  structured_groups: 5
+  overlap_ratios: [0.20, 0.20, 0.30, 0.10]
+  boundary_fraction: 0.20
+  profile_concentration: 100.0
+  domain_shift_strength: 0.15
+
+model:
+  name: mobilenet_v2_small
+  width_multiplier: 0.5
+  dropout: 0.2
+
+federated:
+  rounds: 300
+  local_epochs: 5
+  batch_size: 32
+  learning_rate: 0.01
+  momentum: 0.9
+  weight_decay: 1.0e-4
+  server_learning_rate: 1.0
+  method: fedhydra
+  proximal_mu: 0.0
+  eval_every: 1
+  checkpoint_every: 20
+  bootstrap_summaries: true
+  summary_batch_size: 128
+  max_summary_samples: null
+  amp: true
+
+fedhydra:
+  rff_dimension: 256
+  rff_gamma: 1.0
+  normalize_features: false
+  hybrid_mode: adaptive
+  embedding_dimension: 16
+  vgae_hidden_dimension: 64
+  vgae_epochs: 50
+  vgae_learning_rate: 0.01
+  vgae_kl_weight: 1.0
+  vgae_positive_weighting: false
+  vgae_self_loops: true
+  embedding_mode: vgae
+  gmm_clusters: 5
+  gmm_max_iterations: 100
+  gmm_reg_covar: 1.0e-6
+  hard_memberships: false
+  graph_neighbors: 20
+  histogram_beta: 1.0
+  graph_temperature: 0.5
+  hybrid_regularization: 0.01
+  hybrid_learning_rate: 0.05
+  hybrid_interval: 5
+  embedding_interval: 10
+  clustering_interval: 20
+  scale_epsilon: 1.0e-12
+  aggregation_epsilon: 1.0e-12
+  sample_weighted_updates: false
+  mixture_share_scope: all_clients

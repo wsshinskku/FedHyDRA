@@ -1,0 +1,10 @@
+_base_: cifar100.yaml
+
+experiment:
+  name: cifar100-random-fedhydra
+
+data:
+  partition: dirichlet
+  alpha: 0.3
+  domain_shift_strength: 0.0
+

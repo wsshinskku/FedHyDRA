@@ -1,0 +1,13 @@
+_base_: cifar100.yaml
+
+experiment:
+  name: stl10-structured-fedhydra
+
+data:
+  name: stl10
+  root: data
+  download: true
+  image_size: 96
+  samples_per_client: 20
+  min_samples_per_client: 10
+

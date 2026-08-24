@@ -1,0 +1,9 @@
+_base_: cifar100.yaml
+
+experiment:
+  name: cifar100-structured-fedprox
+
+federated:
+  method: fedprox
+  proximal_mu: 0.01
+

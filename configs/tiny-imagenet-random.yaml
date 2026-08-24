@@ -1,0 +1,10 @@
+_base_: tiny-imagenet.yaml
+
+experiment:
+  name: tiny-imagenet-random-fedhydra
+
+data:
+  partition: dirichlet
+  alpha: 0.3
+  domain_shift_strength: 0.0
+

@@ -1,0 +1,76 @@
+experiment:
+  name: smoke
+  output_dir: runs
+  seed: 7
+  device: cpu
+  deterministic: true
+
+data:
+  name: synthetic
+  root: data
+  download: false
+  num_clients: 4
+  clients_per_round: 2
+  partition: structured
+  alpha: 0.3
+  samples_per_client: 8
+  min_samples_per_client: 4
+  num_workers: 0
+  image_size: 8
+  structured_groups: 2
+  overlap_ratios: [0.2]
+  boundary_fraction: 0.5
+  profile_concentration: 80.0
+  domain_shift_strength: 0.1
+
+model:
+  name: tiny_cnn
+  width_multiplier: 0.25
+  dropout: 0.0
+
+federated:
+  rounds: 2
+  local_epochs: 1
+  batch_size: 4
+  learning_rate: 0.02
+  momentum: 0.0
+  weight_decay: 0.0
+  server_learning_rate: 1.0
+  method: fedhydra
+  proximal_mu: 0.0
+  eval_every: 1
+  checkpoint_every: 1
+  bootstrap_summaries: true
+  summary_batch_size: 8
+  max_summary_samples: null
+  amp: false
+
+fedhydra:
+  rff_dimension: 16
+  rff_gamma: 1.0
+  normalize_features: true
+  hybrid_mode: adaptive
+  embedding_dimension: 4
+  vgae_hidden_dimension: 8
+  vgae_epochs: 2
+  vgae_learning_rate: 0.01
+  vgae_kl_weight: 0.01
+  vgae_positive_weighting: false
+  vgae_self_loops: true
+  embedding_mode: vgae
+  gmm_clusters: 2
+  gmm_max_iterations: 25
+  gmm_reg_covar: 1.0e-5
+  hard_memberships: false
+  graph_neighbors: 1
+  histogram_beta: 1.0
+  graph_temperature: 0.5
+  hybrid_regularization: 0.01
+  hybrid_learning_rate: 0.1
+  hybrid_interval: 1
+  embedding_interval: 1
+  clustering_interval: 1
+  scale_epsilon: 1.0e-12
+  aggregation_epsilon: 1.0e-12
+  sample_weighted_updates: false
+  mixture_share_scope: all_clients
