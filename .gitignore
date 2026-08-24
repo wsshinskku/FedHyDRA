@@ -13,10 +13,10 @@ dist/
 *.egg-info/
 
 # Datasets and experiment products
-data/
-runs/
-checkpoints/
-wandb/
+/data/
+/runs/
+/checkpoints/
+/wandb/
 *.pt
 *.pth
 *.ckpt
@@ -26,4 +26,3 @@ wandb/
 .vscode/
 .DS_Store
 Thumbs.db
-
