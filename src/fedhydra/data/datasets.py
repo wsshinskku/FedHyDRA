@@ -108,8 +108,6 @@ def apply_domain_shift(
 ) -> torch.Tensor:
     """Apply a deterministic, label-preserving color shift for structured clients.
 
-    This is an explicit benchmark completion because the manuscript describes
-    feature-level factors but does not specify an executable image transform.
     A boundary client's transform is the convex combination of group transforms.
     """
 

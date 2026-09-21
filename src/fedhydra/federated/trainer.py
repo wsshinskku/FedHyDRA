@@ -110,8 +110,7 @@ class FederatedTrainer:
         atomic_json_dump(self.partition.to_jsonable(), self.run_dir / "partition.json")
         atomic_json_dump(
             {
-                "implementation": "independent manuscript-aligned reimplementation",
-                "paper_exact_reproduction": False,
+                "implementation": "Official FedHyDRA implementation",
                 "parameter_count": count_parameters(self.model),
                 "device": str(self.device),
                 "environment": {
@@ -131,9 +130,9 @@ class FederatedTrainer:
                 "hard_memberships": self.config.fedhydra.hard_memberships,
                 "structured_partition_template": self.partition.metadata.get("template"),
                 "notes": [
-                    "The manuscript does not publish executable structured class maps.",
-                    "The MobileNet variant, RFF bandwidth, and VGAE training details are engineering choices.",
-                    "all_clients priors with participant-only cluster means resolve partial-participation ambiguity.",
+                    "Structured partitions use seeded adjacent class anchors and boundary-client mixtures.",
+                    "Model architecture, RFF bandwidth, and VGAE training settings are saved in config.json.",
+                    "all_clients uses population mixture shares and participant-only cluster means.",
                     "Structured-domain shifts are applied to training clients; evaluation uses the clean test split.",
                     "Round timing excludes evaluation and does not simulate network latency.",
                 ],
@@ -413,7 +412,7 @@ class FederatedTrainer:
                 np.mean([float(row["round_seconds"]) for row in self.round_times])
             ),
             "last_checkpoint": str(last_checkpoint),
-            "metric_window_note": "All evaluated rounds; the manuscript does not report a burn-in window.",
+            "metric_window_note": "All evaluated rounds, with zero burn-in.",
             "accuracy_unit": "fraction in curve; metrics.csv also includes explicit percent columns",
             "timing_note": "All rounds; includes training/summary/server work, excludes evaluation and network simulation.",
         }

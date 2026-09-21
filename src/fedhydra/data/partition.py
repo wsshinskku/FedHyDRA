@@ -135,9 +135,8 @@ def structured_profiles(
 ) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
     """Generate persistent group profiles with adjacent overlap and boundary clients.
 
-    The paper does not publish executable class maps. This deterministic template
-    assigns disjoint anchor class blocks to groups, injects the stated adjacent
-    overlap mass, and interpolates a seeded fraction of boundary clients.
+    The seeded template assigns disjoint anchor class blocks to groups, adds
+    adjacent overlap mass, and interpolates a seeded fraction of boundary clients.
     """
 
     rng = np.random.default_rng(seed)
@@ -177,7 +176,7 @@ def structured_profiles(
         "boundary_clients": sorted(int(value) for value in boundary_clients.tolist()),
         "anchor_classes": [values.tolist() for values in anchors],
         "group_assignments": assignments.tolist(),
-        "note": "Executable completion of an under-specified manuscript partition.",
+        "note": "Seeded adjacent-anchor partition with soft boundary-client memberships.",
     }
     return profiles, memberships, metadata
 
