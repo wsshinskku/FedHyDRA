@@ -1,4 +1,4 @@
-"""Server-side FedHyDRA structural refresh and aggregation state."""
+"""Server-side FedSOAR structural refresh and aggregation state."""
 
 from __future__ import annotations
 
@@ -127,6 +127,10 @@ class FedHyDRAServer:
                 diagnostics.vgae_loss = vgae.loss
                 diagnostics.vgae_reconstruction = vgae.reconstruction
                 diagnostics.vgae_kl = vgae.kl
+            elif cfg.embedding_mode == "summaries":
+                # Explicit no-VGAE convention: fit the GMM directly on Eq. (15)
+                # node features, without a learned or spectral graph embedding.
+                self.embeddings = node_features.copy()
             else:
                 self.embeddings = spectral_embedding(
                     self.relation_state.adjacency, cfg.embedding_dimension
@@ -208,3 +212,7 @@ class FedHyDRAServer:
                 for key, value in state["gmm_state"].items()
             }
             self.gmm_state = GMMState(**gmm_state)
+
+
+# Both names refer to the same class, preserving legacy callers and state.
+FedSOARServer = FedHyDRAServer

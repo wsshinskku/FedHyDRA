@@ -3,6 +3,6 @@ _base_: cifar100.yaml
 experiment:
   name: cifar100-ablation-fixed-hybrid
 
-fedhydra:
+fedsoar:
   hybrid_mode: fixed
 

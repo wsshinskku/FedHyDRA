@@ -17,7 +17,7 @@ def test_full_smoke_run(tmp_path: Path) -> None:
     )
     trainer = FederatedTrainer(config, run_dir=tmp_path / "run")
     summary = trainer.run()
-    assert summary["method"] == "fedhydra"
+    assert summary["method"] == "fedsoar"
     assert (tmp_path / "run" / "summary.json").is_file()
     assert (tmp_path / "run" / "checkpoints" / "round-0001.pt").is_file()
 

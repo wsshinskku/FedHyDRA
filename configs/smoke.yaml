@@ -36,7 +36,7 @@ federated:
   momentum: 0.0
   weight_decay: 0.0
   server_learning_rate: 1.0
-  method: fedhydra
+  method: fedsoar
   proximal_mu: 0.0
   eval_every: 1
   checkpoint_every: 1
@@ -45,7 +45,7 @@ federated:
   max_summary_samples: null
   amp: false
 
-fedhydra:
+fedsoar:
   rff_dimension: 16
   rff_gamma: 1.0
   normalize_features: true

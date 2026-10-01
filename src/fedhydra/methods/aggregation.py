@@ -1,4 +1,4 @@
-"""Memory-safe named-tensor aggregation for FedAvg and FedHyDRA."""
+"""Memory-safe named-tensor aggregation for FedAvg and FedSOAR."""
 
 from __future__ import annotations
 
@@ -94,6 +94,10 @@ def aggregate_fedhydra(
             global_accumulator.add_(cluster_update, alpha=float(priors[cluster]))
         result[name] = global_accumulator
     return result, priors
+
+
+# Naming alias only: preserve the documented population/participant scope.
+aggregate_fedsoar = aggregate_fedhydra
 
 
 def apply_delta(

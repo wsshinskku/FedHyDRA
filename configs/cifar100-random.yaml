@@ -1,7 +1,7 @@
 _base_: cifar100.yaml
 
 experiment:
-  name: cifar100-random-fedhydra
+  name: cifar100-random-fedsoar
 
 data:
   partition: dirichlet

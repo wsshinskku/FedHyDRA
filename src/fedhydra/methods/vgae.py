@@ -64,7 +64,7 @@ class VGAEDiagnostics:
 
 
 def spectral_embedding(weighted_adjacency: np.ndarray, dimension: int) -> np.ndarray:
-    """Deterministic graph-only embedding for the explicit no-VGAE ablation."""
+    """Optional deterministic graph embedding retained for legacy experiments."""
 
     adjacency = np.asarray(weighted_adjacency, dtype=np.float64)
     clients = adjacency.shape[0]

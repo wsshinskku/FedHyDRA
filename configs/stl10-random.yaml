@@ -1,7 +1,7 @@
 _base_: stl10.yaml
 
 experiment:
-  name: stl10-random-fedhydra
+  name: stl10-random-fedsoar
 
 data:
   partition: dirichlet

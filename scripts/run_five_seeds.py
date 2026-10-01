@@ -17,7 +17,7 @@ def main() -> int:
         command = [
             sys.executable,
             "-m",
-            "fedhydra",
+            "fedsoar",
             "train",
             "--config",
             str(args.config),

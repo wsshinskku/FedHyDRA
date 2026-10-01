@@ -9,7 +9,8 @@ from fedhydra.federated import FederatedTrainer
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_resume_matches_continuous_training(tmp_path: Path) -> None:
+@pytest.mark.parametrize("legacy_names", [False, True])
+def test_resume_matches_continuous_training(tmp_path: Path, legacy_names: bool) -> None:
     config = load_config(
         ROOT / "configs" / "smoke.yaml",
         [
@@ -21,6 +22,13 @@ def test_resume_matches_continuous_training(tmp_path: Path) -> None:
     continuous = FederatedTrainer(config, run_dir=tmp_path / "continuous")
     continuous.run()
     round_one = tmp_path / "continuous" / "checkpoints" / "round-0001.pt"
+    if legacy_names:
+        checkpoint = torch.load(round_one, map_location="cpu", weights_only=True)
+        saved = checkpoint["config"]
+        saved["fedhydra"] = saved.pop("fedsoar")
+        saved["federated"]["method"] = "fedhydra"
+        round_one = tmp_path / "legacy-round-one.pt"
+        torch.save(checkpoint, round_one)
 
     resumed = FederatedTrainer(
         config,

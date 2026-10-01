@@ -11,7 +11,7 @@ import yaml
 
 @dataclass(slots=True)
 class ExperimentConfig:
-    name: str = "fedhydra"
+    name: str = "fedsoar"
     output_dir: str = "runs"
     seed: int = 0
     device: str = "auto"
@@ -56,7 +56,7 @@ class FederatedConfig:
     momentum: float = 0.9
     weight_decay: float = 1.0e-4
     server_learning_rate: float = 1.0
-    method: str = "fedhydra"
+    method: str = "fedsoar"
     proximal_mu: float = 0.0
     eval_every: int = 1
     checkpoint_every: int = 20
@@ -67,7 +67,7 @@ class FederatedConfig:
 
 
 @dataclass(slots=True)
-class FedHyDRAConfig:
+class FedSOARConfig:
     rff_dimension: int = 256
     rff_gamma: float = 1.0
     normalize_features: bool = False
@@ -98,6 +98,10 @@ class FedHyDRAConfig:
     mixture_share_scope: str = "all_clients"
 
 
+# Keep the original class name importable for existing user code.
+FedHyDRAConfig = FedSOARConfig
+
+
 @dataclass(slots=True)
 class Config:
     experiment: ExperimentConfig = field(default_factory=ExperimentConfig)
@@ -106,8 +110,18 @@ class Config:
     federated: FederatedConfig = field(default_factory=FederatedConfig)
     fedhydra: FedHyDRAConfig = field(default_factory=FedHyDRAConfig)
 
+    @property
+    def fedsoar(self) -> FedSOARConfig:
+        """Canonical access to structural settings; ``fedhydra`` remains an alias."""
+
+        return self.fedhydra
+
+    @fedsoar.setter
+    def fedsoar(self, value: FedSOARConfig) -> None:
+        self.fedhydra = value
+
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        return canonical_config_dict(asdict(self))
 
     def validate(self) -> None:
         d, f, h = self.data, self.federated, self.fedhydra
@@ -137,8 +151,8 @@ class Config:
             raise ValueError("local and server learning rates must be positive")
         if f.momentum < 0 or f.weight_decay < 0 or f.proximal_mu < 0:
             raise ValueError("momentum, weight decay, and proximal_mu cannot be negative")
-        if f.method not in {"fedavg", "fedprox", "fedhydra"}:
-            raise ValueError("federated.method must be fedavg, fedprox, or fedhydra")
+        if f.method not in {"fedavg", "fedprox", "fedsoar", "fedhydra"}:
+            raise ValueError("federated.method must be fedavg, fedprox, or fedsoar (legacy: fedhydra)")
         if f.method == "fedprox" and f.proximal_mu <= 0:
             raise ValueError("fedprox requires federated.proximal_mu > 0")
         if self.model.width_multiplier <= 0 or not 0 <= self.model.dropout < 1:
@@ -158,7 +172,7 @@ class Config:
         }
         for name, value in positive.items():
             if value < 1:
-                raise ValueError(f"fedhydra.{name} must be positive")
+                raise ValueError(f"fedsoar.{name} must be positive")
         if h.gmm_clusters > d.num_clients:
             raise ValueError("gmm_clusters cannot exceed num_clients")
         if h.graph_neighbors >= d.num_clients:
@@ -177,14 +191,14 @@ class Config:
             raise ValueError("gmm_max_iterations must be positive")
         if h.mixture_share_scope not in {"all_clients", "participants"}:
             raise ValueError(
-                "fedhydra.mixture_share_scope must be all_clients or participants"
+                "fedsoar.mixture_share_scope must be all_clients or participants"
             )
         if h.hybrid_mode not in {"adaptive", "fixed", "jsd_only", "mmd_only"}:
             raise ValueError(
-                "fedhydra.hybrid_mode must be adaptive, fixed, jsd_only, or mmd_only"
+                "fedsoar.hybrid_mode must be adaptive, fixed, jsd_only, or mmd_only"
             )
-        if h.embedding_mode not in {"vgae", "spectral"}:
-            raise ValueError("fedhydra.embedding_mode must be vgae or spectral")
+        if h.embedding_mode not in {"vgae", "summaries", "spectral"}:
+            raise ValueError("fedsoar.embedding_mode must be vgae, summaries, or spectral")
         if not 0 < h.vgae_learning_rate or not 0 <= h.vgae_kl_weight:
             raise ValueError("invalid VGAE optimization settings")
 
@@ -194,8 +208,27 @@ _SECTIONS = {
     "data": DataConfig,
     "model": ModelConfig,
     "federated": FederatedConfig,
-    "fedhydra": FedHyDRAConfig,
+    "fedsoar": FedSOARConfig,
 }
+
+
+def canonical_config_dict(raw: dict[str, Any]) -> dict[str, Any]:
+    """Normalize naming aliases without changing scientific settings.
+
+    Normalize each YAML file before inheritance is merged so that a legacy child
+    can override a renamed parent, and vice versa. This also lets checkpoint
+    validation compare old and new configurations without relaxing its checks.
+    """
+
+    normalized = dict(raw)
+    if "fedhydra" in normalized:
+        if "fedsoar" in normalized:
+            raise ValueError("use only one of the fedsoar and legacy fedhydra sections per file")
+        normalized["fedsoar"] = normalized.pop("fedhydra")
+    federated = normalized.get("federated")
+    if isinstance(federated, dict) and federated.get("method") == "fedhydra":
+        normalized["federated"] = {**federated, "method": "fedsoar"}
+    return normalized
 
 
 def _deep_merge(base: dict[str, Any], update: dict[str, Any]) -> dict[str, Any]:
@@ -218,6 +251,7 @@ def _load_yaml_tree(path: Path, seen: set[Path] | None = None) -> dict[str, Any]
         raw = yaml.safe_load(stream) or {}
     if not isinstance(raw, dict):
         raise TypeError(f"configuration root must be a mapping: {path}")
+    raw = canonical_config_dict(raw)
     base_name = raw.pop("_base_", None)
     if base_name is None:
         return raw
@@ -246,7 +280,10 @@ def load_config(path: str | Path, overrides: list[str] | None = None) -> Config:
         if "=" not in expression:
             raise ValueError(f"override must be key=value: {expression}")
         key, encoded = expression.split("=", 1)
+        if key.startswith("fedhydra."):
+            key = "fedsoar." + key.removeprefix("fedhydra.")
         _set_nested(raw, key, yaml.safe_load(encoded))
+    raw = canonical_config_dict(raw)
 
     unknown_sections = set(raw) - set(_SECTIONS)
     if unknown_sections:
@@ -261,7 +298,7 @@ def load_config(path: str | Path, overrides: list[str] | None = None) -> Config:
         unknown = set(values) - known
         if unknown:
             raise KeyError(f"unknown keys in {name}: {sorted(unknown)}")
-        sections[name] = section_type(**values)
+        sections["fedhydra" if name == "fedsoar" else name] = section_type(**values)
 
     config = Config(**sections)
     config.validate()

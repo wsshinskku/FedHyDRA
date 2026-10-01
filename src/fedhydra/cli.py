@@ -14,8 +14,8 @@ from fedhydra.federated import FederatedTrainer
 from fedhydra.utils import configure_logging
 
 
-def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="fedhydra")
+def _parser(prog: str = "fedhydra") -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog=prog)
     parser.add_argument("--verbose", action="store_true")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -31,8 +31,8 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = _parser()
+def main(argv: list[str] | None = None, *, prog: str = "fedhydra") -> int:
+    parser = _parser(prog=prog)
     args = parser.parse_args(argv)
     configure_logging(args.verbose)
     config = load_config(args.config, args.set)

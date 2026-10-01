@@ -1,7 +1,7 @@
 _base_: cifar100.yaml
 
 experiment:
-  name: tiny-imagenet-structured-fedhydra
+  name: tiny-imagenet-structured-fedsoar
 
 data:
   name: tiny_imagenet

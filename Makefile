@@ -10,5 +10,5 @@ lint:
 	python -m ruff check src tests
 
 smoke:
-	fedhydra train --config configs/smoke.yaml
+	fedsoar train --config configs/smoke.yaml
 

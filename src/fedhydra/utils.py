@@ -13,7 +13,7 @@ from typing import Any
 import numpy as np
 import torch
 
-LOGGER = logging.getLogger("fedhydra")
+LOGGER = logging.getLogger("fedsoar")
 
 
 def configure_logging(verbose: bool = False) -> None:

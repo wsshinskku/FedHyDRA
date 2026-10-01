@@ -2,6 +2,8 @@
 
 The structured partition combines persistent client groups, adjacent label overlap, boundary clients, and label-preserving feature shifts. The CIFAR-100 profile uses five groups and adjacent overlap ratios of 20%, 20%, 30%, and 10%.
 
+The revised manuscript describes semantic background/object/animal templates in Tables 1 and 2. The generator below uses numerical class-ID anchor blocks plus deterministic color transforms. Matching the overlap percentages does not make these partitions identical to the manuscript's semantic assignment. Exact class mappings and original sample indices are needed for that comparison. `partition.json` makes this implementation's realized split inspectable.
+
 ## Generation rules
 
 `structured_profiles()` applies these seeded rules:

@@ -1,12 +1,14 @@
-# FedHyDRA
+# FedSOAR
 
-**Federated Learning with Dual-Scale Hybrid Divergence and Relation-Aware Embedding for Structured Non-IID Data** 논문의 **저자 공식 구현**입니다.
+**Federated Learning under Client Heterogeneity via Soft Overlap-Aware Relations** 논문의 **저자 공식 구현**입니다.
 
 [English](README.md) | [한국어](README.ko.md)
 
 **저자:** Wooseok Shin, Janghoon Yang, Zhiqiang Shen, Jitae Shin.
 
-FedHyDRA는 라벨 분포와 특징 분포로 클라이언트 관계를 학습하고, 구조적 non-IID 환경에서 연합학습 업데이트를 집계합니다.
+FedSOAR(Federated Learning via Soft Overlap-Aware Relations)는 라벨·특징 분포가 여러 잠재 그룹에 걸쳐 겹치는 클라이언트 관계를 모델링합니다. 적응형 JSD-MMD 관계, VGAE 임베딩, 소프트 GMM 소속도를 결합해 하나의 공유 글로벌 모델을 학습합니다.
+
+기존 FedHyDRA를 수정된 Applied Soft Computing 원고에 맞춰 갱신한 저장소입니다. 기존 링크를 유지하도록 저장소 주소는 `wsshinskku/FedHyDRA`로 유지합니다. 게재 승인이나 출판을 의미하지 않습니다.
 
 ## 방법
 
@@ -16,7 +18,21 @@ FedHyDRA는 라벨 분포와 특징 분포로 클라이언트 관계를 학습�
 4. Full-covariance Gaussian mixture model이 소프트 클러스터 소속도를 계산합니다.
 5. 서버는 전체 클라이언트의 저장된 혼합 비율과 현재 참여자의 업데이트를 집계하며, 결합 가중치·임베딩·클러스터를 설정 주기에 따라 갱신합니다.
 
-**FedHyDRA, FedAvg, FedProx**와 고정 결합 가중치, JSD-only, MMD-only, no-VGAE, hard-membership ablation을 제공합니다. No-VGAE 실험은 정규화 인접 행렬의 spectral embedding을 사용합니다.
+**FedSOAR, FedAvg, FedProx**와 고정 결합 가중치, JSD-only, MMD-only, no-VGAE, hard-membership ablation을 제공합니다. No-VGAE 실험은 라벨 히스토그램과 RFF 요약을 연결한 특징에 GMM을 직접 적용합니다. 기존 spectral embedding 옵션은 별도 구현 선택지로 유지합니다.
+
+## 원고의 보고 결과와 구현 범위
+
+수정 원고의 Table 5에 보고된 balanced top-1 accuracy입니다. 이번 smoke test나 새 재현 실험에서 얻은 값이 아닙니다.
+
+| 데이터셋 | Random non-IID (%) | Structured non-IID (%) | 구조적 분할에서 가장 높은 다른 비교 방법 대비 향상 (%p) |
+|---|---:|---:|---:|
+| CIFAR-100 | 89.2 | 89.0 | 1.7 |
+| Tiny-ImageNet | 89.0 | 88.6 | 2.0 |
+| STL-10 | 89.7 | 89.5 | 2.2 |
+
+원고의 주된 이점은 구조적 non-IID 분할에서 나타납니다. Random 분할에서는 FedWaD가 CIFAR-100에서 0.1%p 높고, Tiny-ImageNet에서는 동률이며, STL-10에서는 더 일찍 수렴합니다.
+
+주요 학습 파이프라인, FedAvg/FedProx 비교, 구성요소 ablation과 smoothing·그래프 밀도·갱신 주기 설정을 제공합니다. 원 실험의 정확한 샘플 인덱스, 모든 비교 방법의 구현, Section 5.4의 동적 스트레스 실험 실행기는 포함되어 있지 않습니다. 집계식의 구현 규칙과 재현 범위는 [원고 대응 문서](docs/MANUSCRIPT_ALIGNMENT.md)에 정리했습니다.
 
 ## 설치
 
@@ -37,9 +53,11 @@ python -m pip install -e ".[dev]"
 ## 빠른 시작
 
 ```bash
-fedhydra train --config configs/smoke.yaml --run-dir runs/smoke-check
+fedsoar train --config configs/smoke.yaml --run-dir runs/smoke-check
 pytest -q
 ```
+
+기본 명령은 `fedsoar`이며 `python -m fedsoar`도 지원합니다. 기존 `fedhydra` 명령·import·YAML 키·방법 이름도 계속 사용할 수 있습니다. 새 설정은 `fedsoar:`와 `federated.method: fedsoar`를 사용합니다.
 
 합성 데이터 기반 smoke 설정은 클라이언트 4개, 라운드별 참여자 2개, 통신 2라운드를 사용합니다. 로컬 학습, 요약 통계 추출, 그래프 학습, 클러스터링, 집계, 평가, 체크포인트 저장까지 수행합니다.
 
@@ -60,11 +78,11 @@ python scripts/download_tiny_imagenet.py --destination data
 Tiny-ImageNet 로더는 기본 `train/<class>/images`, `val/images`, `val_annotations.txt` 구조를 읽습니다. 데이터 저장 경로는 `data.root`로 지정합니다.
 
 ```bash
-fedhydra train --config configs/cifar100.yaml
-fedhydra inspect-partition --config configs/cifar100.yaml
-fedhydra train --config configs/cifar100.yaml --set experiment.seed=1
-fedhydra train --config configs/cifar100.yaml --set federated.method=fedavg --set experiment.name=cifar100-structured-fedavg
-fedhydra train --config configs/fedprox-cifar100.yaml
+fedsoar train --config configs/cifar100.yaml
+fedsoar inspect-partition --config configs/cifar100.yaml
+fedsoar train --config configs/cifar100.yaml --set experiment.seed=1
+fedsoar train --config configs/cifar100.yaml --set federated.method=fedavg --set experiment.name=cifar100-structured-fedavg
+fedsoar train --config configs/fedprox-cifar100.yaml
 ```
 
 CIFAR-100 설정은 클라이언트 200개, 라운드별 참여자 20개, 통신 300라운드, 로컬 5에포크, 너비 배율 0.5의 MobileNetV2를 사용합니다. 구조적 분할은 인접 클래스 그룹의 중첩, 경계 클라이언트, 라벨을 유지하는 색상 변환을 결합합니다. 샘플 인덱스와 소속도는 `partition.json`에 저장합니다.
@@ -75,8 +93,8 @@ Ablation 설정: [고정 결합 가중치](configs/ablation-fixed-hybrid.yaml), 
 
 ```bash
 python scripts/run_five_seeds.py --config configs/cifar100.yaml
-python scripts/summarize_runs.py --root runs --experiment cifar100-structured-fedhydra --output runs/cifar100-structured-summary.json
-fedhydra train --config configs/cifar100.yaml --resume runs/cifar100-structured-fedhydra/seed-0/checkpoints/round-0020.pt
+python scripts/summarize_runs.py --root runs --experiment cifar100-structured-fedsoar --output runs/cifar100-structured-summary.json
+fedsoar train --config configs/cifar100.yaml --resume runs/cifar100-structured-fedsoar/seed-0/checkpoints/round-0020.pt
 ```
 
 시드 실행 스크립트는 0–4를 순차 실행합니다. 요약 스크립트는 평균, 표본 표준편차, 정규근사 95% 신뢰구간을 JSON과 Markdown으로 저장합니다.
@@ -101,7 +119,8 @@ Balanced top-1 accuracy는 클래스별 recall의 평균입니다. 수렴 시점
 
 | 경로 | 역할 |
 |---|---|
-| [src/fedhydra](src/fedhydra) | 데이터, 모델, 클라이언트/서버 학습, 핵심 방법, 지표 |
+| [src/fedsoar](src/fedsoar) | FedSOAR import 및 명령 진입점 |
+| [src/fedhydra](src/fedhydra) | 공통 구현과 기존 API 호환 |
 | [configs](configs) | 데이터셋, 비교 방법, ablation 설정 |
 | [scripts](scripts) | 데이터 준비, 다중 시드 실행, 결과 요약 |
 | [tests](tests) | 수식, 데이터, 체크포인트, 통합 검증 |
@@ -109,13 +128,15 @@ Balanced top-1 accuracy는 클래스별 recall의 평균입니다. 수렴 시점
 | [구조적 데이터 분할](docs/STRUCTURED_PARTITIONS.md) | 분할 생성과 사용자 지정 API |
 | [재현성 가이드](docs/REPRODUCIBILITY.md) | 시드 설정과 결과 보고 방법 |
 
+기본 갱신 주기는 결합 가중치 5라운드, 그래프/VGAE 10라운드, GMM 소속도 20라운드입니다.
+
 ## 인용
 
 ```bibtex
-@unpublished{shin2026fedhydra,
-  title  = {Federated Learning with Dual-Scale Hybrid Divergence and Relation-Aware Embedding for Structured Non-IID Data},
+@unpublished{shin2026fedsoar,
+  title  = {Federated Learning under Client Heterogeneity via Soft Overlap-Aware Relations},
   author = {Shin, Wooseok and Yang, Janghoon and Shen, Zhiqiang and Shin, Jitae},
-  note   = {Manuscript},
+  note   = {Manuscript prepared for Applied Soft Computing},
   year   = {2026}
 }
 ```

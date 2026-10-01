@@ -3,6 +3,6 @@ _base_: cifar100.yaml
 experiment:
   name: cifar100-ablation-jsd-only
 
-fedhydra:
+fedsoar:
   hybrid_mode: jsd_only
 

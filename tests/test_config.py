@@ -21,5 +21,5 @@ def test_ablation_configs_select_explicit_modes() -> None:
     no_vgae = load_config(ROOT / "configs" / "ablation-no-vgae.yaml")
     hard = load_config(ROOT / "configs" / "ablation-hard-gmm.yaml")
     assert fixed.fedhydra.hybrid_mode == "fixed"
-    assert no_vgae.fedhydra.embedding_mode == "spectral"
+    assert no_vgae.fedsoar.embedding_mode == "summaries"
     assert hard.fedhydra.hard_memberships

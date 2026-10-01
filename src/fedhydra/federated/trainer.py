@@ -1,4 +1,4 @@
-"""End-to-end deterministic simulator for FedAvg, FedProx, and FedHyDRA."""
+"""End-to-end deterministic simulator for FedAvg, FedProx, and FedSOAR."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from fedhydra.config import Config
+from fedhydra.config import Config, canonical_config_dict
 from fedhydra.data import ClientDataset, build_datasets, build_partition
 from fedhydra.evaluation import evaluate_model, summarize_curve
 from fedhydra.federated.client import ClientResult, train_client
@@ -82,7 +82,7 @@ class FederatedTrainer:
         self.summary_valid = np.zeros(config.data.num_clients, dtype=bool)
         self.last_seen = np.full(config.data.num_clients, -1, dtype=np.int64)
         self.server = None
-        if config.federated.method == "fedhydra":
+        if config.federated.method in {"fedsoar", "fedhydra"}:
             self.server = FedHyDRAServer(
                 config.fedhydra,
                 clients=config.data.num_clients,
@@ -110,7 +110,7 @@ class FederatedTrainer:
         atomic_json_dump(self.partition.to_jsonable(), self.run_dir / "partition.json")
         atomic_json_dump(
             {
-                "implementation": "Official FedHyDRA implementation",
+                "implementation": "FedSOAR research implementation (formerly FedHyDRA)",
                 "parameter_count": count_parameters(self.model),
                 "device": str(self.device),
                 "environment": {
@@ -300,7 +300,8 @@ class FederatedTrainer:
 
     def _load_checkpoint(self, path: Path) -> None:
         checkpoint = torch.load(path, map_location="cpu", weights_only=True)
-        if checkpoint.get("config") != self.config.to_dict():
+        saved_config = checkpoint.get("config")
+        if not isinstance(saved_config, dict) or canonical_config_dict(saved_config) != self.config.to_dict():
             raise ValueError("checkpoint configuration differs from the requested configuration")
         self.model.load_state_dict(checkpoint["model"])
         self.model.to(self.device)
@@ -327,7 +328,7 @@ class FederatedTrainer:
             self.bootstrap_summaries()
         elif self.server is not None and not self.summary_valid.all():
             raise ValueError(
-                "FedHyDRA requires complete summary caches at the first structural refresh; "
+                "FedSOAR requires complete summary caches at the first structural refresh; "
                 "enable federated.bootstrap_summaries"
             )
 

@@ -1,7 +1,7 @@
 _base_: cifar100.yaml
 
 experiment:
-  name: stl10-structured-fedhydra
+  name: stl10-structured-fedsoar
 
 data:
   name: stl10

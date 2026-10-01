@@ -1,7 +1,7 @@
 _base_: tiny-imagenet.yaml
 
 experiment:
-  name: tiny-imagenet-random-fedhydra
+  name: tiny-imagenet-random-fedsoar
 
 data:
   partition: dirichlet

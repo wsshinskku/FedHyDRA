@@ -1,6 +1,6 @@
 # Implementation notes
 
-This guide maps the FedHyDRA equations to the official implementation and describes the numerical conventions used by its configuration profiles.
+This guide maps the revised FedSOAR equations to the official implementation and describes the numerical conventions used by its configuration profiles.
 
 ## Equation-to-module map
 
@@ -65,7 +65,7 @@ cluster_k = sum_i Gamma_ik Delta_i / sum_i Gamma_ik
 sum_k pi_k cluster_k = (1/N) sum_i Delta_i
 ```
 
-This identity gives a useful aggregation invariant for tests and comparisons. Record `mixture_share_scope`, sample weighting, and epsilon with results.
+The revised manuscript writes Eqs. (20) and (22) over the same N clients, while its experiment uses 20 participants out of 200. It does not explicitly distinguish these summation scopes. The default population-versus-participants convention is an implementation choice that must be stated when relating this code to the manuscript. At full participation, it also approaches the uniform mean. The code preserves this behavior and its regression tests instead of claiming that soft memberships always change the final update. Record `mixture_share_scope`, sample weighting, and epsilon with results.
 
 ## Model and local training
 
@@ -78,3 +78,11 @@ Cosine learning-rate decay is indexed by communication round. Clients in a round
 Balanced top-1 accuracy averages per-class recall over classes present in the test split. Convergence is the first evaluated round reaching 90% of final evaluated accuracy.
 
 CoV and Min/Mean use all evaluation points with population standard deviation. The metric helper also supports an explicit `burn_in` argument; default run summaries use zero. Round timing covers training, summaries, refreshes, and aggregation, with evaluation outside the timed window.
+
+## No-VGAE control
+
+The revised manuscript describes direct clustering without VGAE (Section 5.6). `configs/ablation-no-vgae.yaml` therefore selects `embedding_mode: summaries` and supplies the concatenation `[h_i, phi_i]` from Eq. (15) directly to the GMM. This input choice is explicit because the manuscript does not specify the bypass representation in detail. The older normalized-adjacency `spectral` mode remains available, but is a distinct graph-embedding control.
+
+## Naming and compatibility
+
+FedSOAR is the public method name and preferred CLI. New YAML files use the `fedsoar` section. The shared implementation stays in `src/fedhydra` to preserve existing imports; `src/fedsoar` exposes the revised name. Legacy method names and configuration keys are normalized on load. See the tests for new and legacy entry points and checkpoint configuration compatibility.

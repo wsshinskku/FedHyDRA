@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use this implementation, please cite the FedHyDRA paper."
-title: "FedHyDRA: Federated Learning with Dual-Scale Hybrid Divergence and Relation-Aware Embedding"
+message: "If you use this implementation, please cite the FedSOAR manuscript."
+title: "FedSOAR: Federated Learning under Client Heterogeneity via Soft Overlap-Aware Relations"
 type: software
 authors:
   - family-names: Shin
@@ -11,12 +11,13 @@ authors:
     given-names: Zhiqiang
   - family-names: Shin
     given-names: Jitae
-version: 0.1.0
-date-released: 2026-08-24
+version: 0.2.0
+date-released: 2026-10-01
 license: MIT
+repository-code: "https://github.com/wsshinskku/FedHyDRA"
 preferred-citation:
-  type: article
-  title: "Federated Learning with Dual-Scale Hybrid Divergence and Relation-Aware Embedding for Structured Non-IID Data"
+  type: unpublished
+  title: "Federated Learning under Client Heterogeneity via Soft Overlap-Aware Relations"
   authors:
     - family-names: Shin
       given-names: Wooseok
